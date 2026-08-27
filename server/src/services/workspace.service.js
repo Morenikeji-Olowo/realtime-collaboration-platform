@@ -10,7 +10,7 @@ export async function getMembership(workspaceId, userId) {
     .maybeSingle();
 
   if (error) {
-    throw new AppError("Failed to check workspace membership", 500);
+    throw new AppError("Failed to check workspace membership", 500, {cause: error});
   }
   return data;
 }

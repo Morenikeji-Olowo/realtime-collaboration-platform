@@ -5,6 +5,7 @@ import pinoHttp from 'pino-http';
 import usersRoutes from './routes/users.routes.js';
 import workspaceRoutes from './routes/workspace.routes.js';
 import invitationRoutes from './routes/invitation.routes.js';
+import documentRoutes from './routes/document.routes.js';
 
 const app = express()
 app.use(pinoHttp());
@@ -18,6 +19,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/invitations', invitationRoutes);
+app.use('/api/documents', documentRoutes);
 
 app.use(errorHandler)
 
