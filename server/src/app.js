@@ -4,6 +4,7 @@ import authRoutes from './routes/auth.routes.js';
 import pinoHttp from 'pino-http';
 import usersRoutes from './routes/users.routes.js';
 import workspaceRoutes from './routes/workspace.routes.js';
+import invitationRoutes from './routes/invitation.routes.js';
 
 const app = express()
 app.use(pinoHttp());
@@ -16,6 +17,7 @@ app.get('/health', (req, res)=>{
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/workspaces', workspaceRoutes);
+app.use('/api/invitations', invitationRoutes);
 
 app.use(errorHandler)
 
