@@ -1,0 +1,23 @@
+{
+  "name": "realtime-collaboration-platform",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Morenikeji-Olowo/realtime-collaboration-platform.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Morenikeji-Olowo/realtime-collaboration-platform/issues"
+  },
+  "homepage": "https://github.com/Morenikeji-Olowo/realtime-collaboration-platform#readme",
+  "devDependencies": {
+    "supabase": "^2.115.0"
+  }
+}
