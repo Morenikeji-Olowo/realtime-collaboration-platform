@@ -1,10 +1,4 @@
-import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { env } from '../config/env.js';
-
-const JWKS = createRemoteJWKSet(
-  new URL(`${env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`)
-);
-const ISSUER = `${env.SUPABASE_URL}/auth/v1`;
+import { verifyToken } from '../utils/jwt.js';
 
 export default async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -20,18 +14,11 @@ export default async function authMiddleware(req, res, next) {
   const token = authHeader.slice(7);
 
   try {
-    const { payload } = await jwtVerify(token, JWKS, {
-      issuer: ISSUER,
-      audience: 'authenticated',
-    });
-
-    req.user = {
-      id: payload.sub,
-      email: payload.email,
-    };
-
+    req.user = await verifyToken(token);
     next();
   } catch (err) {
+    req.log?.error({ err }, 'Token verification failed');
+
     if (err.code === 'ERR_JWT_EXPIRED') {
       return res.status(401).json({
         success: false,
