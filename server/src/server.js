@@ -1,15 +1,18 @@
-import http from 'node:http';
+import http from "node:http";
 
-import app from './app.js';
-import { env } from './config/env.js';
-import redis from './config/redis.js';
+import app from "./app.js";
+import { env } from "./config/env.js";
+import redis from "./config/redis.js";
 
-import { createAdapter } from '@socket.io/redis-streams-adapter';
-import { Server } from 'socket.io';
-import socketRedis from './config/socketRedis.js';
-import { verifyToken } from './utils/jwt.js';
-import { registerConnectionHandler } from './socket/connection.js';
-
+import { createAdapter } from "@socket.io/redis-streams-adapter";
+import { Server } from "socket.io";
+import socketRedis from "./config/socketRedis.js";
+import { verifyToken } from "./utils/jwt.js";
+import { registerConnectionHandler } from "./socket/connection.js";
+import {
+  startWhiteboardFlush,
+  stopWhiteboardFlush,
+} from "./jobs/whiteboardFlush.js";
 export async function createServer() {
   const httpServer = http.createServer(app);
 
@@ -20,23 +23,23 @@ export async function createServer() {
   io.use(async (socket, next) => {
     const token = socket.handshake.auth?.token;
 
-    if(!token){
-      return next(new Error('Missing authentication token'));
+    if (!token) {
+      return next(new Error("Missing authentication token"));
     }
 
-    try{
+    try {
       socket.user = await verifyToken(token);
       next();
-    }
-    catch(err){
-      console.error('Socket auth failed:', err.message, err.code);
-      next(new Error('Invalid or expired token'));
+    } catch (err) {
+      console.error("Socket auth failed:", err.message, err.code);
+      next(new Error("Invalid or expired token"));
     }
   });
 
   registerConnectionHandler(io);
 
   function start() {
+    startWhiteboardFlush();
     httpServer.listen(env.PORT, () => {
       console.log(`Server running on port ${env.PORT}`);
     });
@@ -46,26 +49,28 @@ export async function createServer() {
     console.log(`${signal} received, shutting down gracefully...`);
 
     const forceExitTimer = setTimeout(() => {
-      console.error('Forced shutdown after timeout');
+      console.error("Forced shutdown after timeout");
       process.exit(1);
     }, 10000);
 
     io.close();
+    stopWhiteboardFlush();
 
     await new Promise((resolve) => {
       httpServer.close(() => resolve());
     });
-    console.log('HTTP server closed');
+    console.log("HTTP server closed");
 
     await redis.quit();
-    console.log('Redis connection closed');
+    await socketRedis.quit();
+    console.log("Redis connections closed");
 
     clearTimeout(forceExitTimer);
     process.exit(0);
   }
 
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
-  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
 
   return { start };
 }
