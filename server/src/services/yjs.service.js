@@ -48,3 +48,17 @@ export async function getOrCreateDocument(documentId) {
 export function getDocument(documentId) {
   return documents.get(documentId);
 }
+
+export function applyUpdate(documentId, update){
+    const doc = getDocument(documentId);
+
+    if(!doc){
+        throw new AppError('Document is not currently loaded', 404);
+    }
+
+    if(!(update instanceof Uint8Array)){
+        throw new AppError('Update must be a Uint8Array', 400);
+    }
+
+    Y.applyUpdate(doc, update);
+}
