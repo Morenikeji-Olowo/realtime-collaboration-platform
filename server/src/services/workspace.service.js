@@ -33,17 +33,38 @@ export async function createWorkspace(name, ownerId) {
 
 export async function listWorkspaces(userId) {
   const { data, error } = await supabase
-    .from("workspace_members")
-    .select("role, workspaces(*)")
-    .eq("user_id", userId);
+    .from('workspace_members')
+    .select('role, workspaces(*)')
+    .eq('user_id', userId);
 
   if (error) {
-    throw new AppError("Failed to list workspaces", 500);
+    throw new AppError('Failed to list workspaces', 500);
   }
+
+  if (data.length === 0) {
+    return [];
+  }
+
+  const workspaceIds = data.map((row) => row.workspaces.id);
+
+  const { data: memberRows, error: countError } = await supabase
+    .from('workspace_members')
+    .select('workspace_id')
+    .in('workspace_id', workspaceIds);
+
+  if (countError) {
+    throw new AppError('Failed to count workspace members', 500);
+  }
+
+  const memberCounts = memberRows.reduce((counts, row) => {
+    counts[row.workspace_id] = (counts[row.workspace_id] || 0) + 1;
+    return counts;
+  }, {});
 
   return data.map((row) => ({
     ...row.workspaces,
     role: row.role,
+    member_count: memberCounts[row.workspaces.id] || 0,
   }));
 }
 
@@ -116,4 +137,27 @@ export async function deleteWorkspace(workspaceId, userId) {
   if (error) {
     throw new AppError("Failed to delete workspace", 500);
   }
+}
+
+export async function listMembers(workspaceId, userId) {
+  const membership = await getMembership(workspaceId, userId);
+
+  if (!membership) {
+    throw new AppError('Workspace not found', 404);
+  }
+
+  const { data, error } = await supabase
+    .from('workspace_members')
+    .select('role, joined_at, users(id, name, email)')
+    .eq('workspace_id', workspaceId);
+
+  if (error) {
+    throw new AppError('Failed to list members', 500);
+  }
+
+  return data.map((row) => ({
+    ...row.users,
+    role: row.role,
+    joined_at: row.joined_at,
+  }));
 }

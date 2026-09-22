@@ -69,3 +69,11 @@ export async function deleteWorkspace(req, res, next) {
     next(error);
   }
 }
+export async function listMembers(req, res, next) {
+  try {
+    const members = await workspaceService.listMembers(req.params.id, req.user.id);
+    return res.status(200).json({ success: true, data: members });
+  } catch (err) {
+    next(err);
+  }
+}

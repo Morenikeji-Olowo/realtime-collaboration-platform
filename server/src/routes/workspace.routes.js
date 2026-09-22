@@ -15,5 +15,5 @@ workspaceRouter.post('/:id/invitations', authMiddleware, invitationController.cr
 
 workspaceRouter.post('/:workspaceId/documents', authMiddleware, documentController.createDocument);
 workspaceRouter.get('/:workspaceId/documents', authMiddleware, documentController.listDocuments);
-
+workspaceRouter.get('/:id/members', authMiddleware, workspaceController.listMembers);
 export default workspaceRouter;

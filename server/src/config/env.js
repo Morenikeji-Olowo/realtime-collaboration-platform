@@ -6,10 +6,10 @@ const envSchema = z.object({
 
   SUPABASE_URL: z.url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  ALLOWED_ORIGINS: z.string().min(1),
   SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
 
   REDIS_URL: z.url(),
-
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -21,3 +21,4 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+export const allowedOrigins = env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim());

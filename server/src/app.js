@@ -6,8 +6,15 @@ import usersRoutes from './routes/users.routes.js';
 import workspaceRoutes from './routes/workspace.routes.js';
 import invitationRoutes from './routes/invitation.routes.js';
 import documentRoutes from './routes/document.routes.js';
+import cors from 'cors';
+import { allowedOrigins } from './config/env.js';
 
 const app = express()
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(pinoHttp());
 app.disable('x-powered-by')
 app.use(express.json({limit: '1mb'}))
