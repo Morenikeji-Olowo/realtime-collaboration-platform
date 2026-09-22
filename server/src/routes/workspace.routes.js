@@ -3,6 +3,7 @@ import authMiddleware from '../middleware/auth.js';
 import * as workspaceController from '../controllers/workspace.controller.js';
 import * as invitationController from '../controllers/invitation.controller.js';
 import * as documentController from '../controllers/document.controller.js';
+import * as messageController from '../controllers/message.controller.js';
 
 const workspaceRouter = Router();
 
@@ -16,4 +17,7 @@ workspaceRouter.post('/:id/invitations', authMiddleware, invitationController.cr
 workspaceRouter.post('/:workspaceId/documents', authMiddleware, documentController.createDocument);
 workspaceRouter.get('/:workspaceId/documents', authMiddleware, documentController.listDocuments);
 workspaceRouter.get('/:id/members', authMiddleware, workspaceController.listMembers);
+workspaceRouter.get('/:id/invitations', authMiddleware, invitationController.listInvitations);
+workspaceRouter.get('/:id/messages', authMiddleware, messageController.listMessages);
+
 export default workspaceRouter;

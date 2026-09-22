@@ -1,7 +1,6 @@
 import http from "node:http";
 
 import app from "./app.js";
-import { env } from "./config/env.js";
 import redis from "./config/redis.js";
 
 import { createAdapter } from "@socket.io/redis-streams-adapter";
@@ -13,12 +12,23 @@ import {
   startWhiteboardFlush,
   stopWhiteboardFlush,
 } from "./jobs/whiteboardFlush.js";
+import { env, allowedOrigins } from './config/env.js';
+
+
 export async function createServer() {
   const httpServer = http.createServer(app);
 
-  const io = new Server(httpServer, {
-    adapter: createAdapter(socketRedis),
-  });
+const io = new Server(httpServer, {
+  adapter: createAdapter(socketRedis),
+  cors: {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+  },
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: false,
+  },
+});
 
   io.use(async (socket, next) => {
     const token = socket.handshake.auth?.token;

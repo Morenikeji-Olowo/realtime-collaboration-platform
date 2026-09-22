@@ -10,6 +10,9 @@ const envSchema = z.object({
   SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
 
   REDIS_URL: z.url(),
+
+  RESEND_API_KEY: z.string().min(1),
+  FRONTEND_URL: z.url(),
 });
 
 const parsed = envSchema.safeParse(process.env);
