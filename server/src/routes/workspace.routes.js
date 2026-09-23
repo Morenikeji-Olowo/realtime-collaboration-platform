@@ -5,6 +5,7 @@ import * as invitationController from '../controllers/invitation.controller.js';
 import * as documentController from '../controllers/document.controller.js';
 import * as messageController from '../controllers/message.controller.js';
 import * as whiteboardController from '../controllers/whiteboard.controller.js';
+import * as activityController from '../controllers/activity.controller.js';
 
 const workspaceRouter = Router();
 
@@ -21,6 +22,8 @@ workspaceRouter.get('/:id/members', authMiddleware, workspaceController.listMemb
 workspaceRouter.get('/:id/invitations', authMiddleware, invitationController.listInvitations);
 workspaceRouter.get('/:id/messages', authMiddleware, messageController.listMessages);
 workspaceRouter.get('/:id/whiteboard', authMiddleware, whiteboardController.getWorkspaceWhiteboard);
+
+workspaceRouter.get('/:id/activity', authMiddleware, activityController.listActivity);
 
 
 export default workspaceRouter;

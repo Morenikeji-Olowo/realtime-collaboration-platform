@@ -1,0 +1,1 @@
+alter table public.activity disable row level security;
