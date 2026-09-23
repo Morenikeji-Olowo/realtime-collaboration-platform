@@ -1,6 +1,8 @@
 import { AppError } from '../middleware/error.js';
 import redis from '../config/redis.js';
 import supabase from '../config/supabase.js';
+import { getMembership } from './workspace.service.js';
+
 
 redis.defineCommand('markPersistedIfCurrent', {
   numberOfKeys: 2,
@@ -112,4 +114,24 @@ export async function flushAllDirty(){
             console.error(`Failed to flush whiteboard for workspace ${workspaceId}:`, error);   
         }
     }
+}
+
+export async function getWorkspaceWhiteboard(workspaceId, userId) {
+  const membership = await getMembership(workspaceId, userId);
+
+  if (!membership) {
+    throw new AppError('Workspace not found', 404);
+  }
+
+  const { data, error } = await supabase
+    .from('whiteboards')
+    .select('state, updated_at')
+    .eq('workspace_id', workspaceId)
+    .single();
+
+  if (error) {
+    throw new AppError('Failed to load whiteboard', 500);
+  }
+
+  return data;
 }

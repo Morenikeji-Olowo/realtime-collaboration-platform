@@ -177,5 +177,17 @@ export function registerConnectionHandler(io) {
         });
       }
     });
+
+    socket.on("whiteboard:cursor", (workspaceId, position) => {
+      if (!socket.joinedWorkspaces.has(workspaceId)) {
+        return; // silently ignore -- not a member of this room, no ack to send anyway
+      }
+
+      socket.to(`workspace:${workspaceId}`).emit("whiteboard:cursor", {
+        id: socket.user.id,
+        email: socket.user.email,
+        position,
+      });
+    });
   });
 }
