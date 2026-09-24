@@ -6,6 +6,7 @@ import * as documentController from '../controllers/document.controller.js';
 import * as messageController from '../controllers/message.controller.js';
 import * as whiteboardController from '../controllers/whiteboard.controller.js';
 import * as activityController from '../controllers/activity.controller.js';
+import * as fileController from '../controllers/file.controller.js';
 
 const workspaceRouter = Router();
 
@@ -24,6 +25,8 @@ workspaceRouter.get('/:id/messages', authMiddleware, messageController.listMessa
 workspaceRouter.get('/:id/whiteboard', authMiddleware, whiteboardController.getWorkspaceWhiteboard);
 
 workspaceRouter.get('/:id/activity', authMiddleware, activityController.listActivity);
+
+workspaceRouter.post('/:workspaceId/files/upload-url', authMiddleware, fileController.getUploadUrl);
 
 
 export default workspaceRouter;

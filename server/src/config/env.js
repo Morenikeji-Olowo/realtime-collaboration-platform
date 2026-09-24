@@ -13,6 +13,9 @@ const envSchema = z.object({
 
   RESEND_API_KEY: z.string().min(1),
   FRONTEND_URL: z.url(),
+
+  GCS_BUCKET_NAME: z.string().min(1),
+  GOOGLE_APPLICATION_CREDENTIALS: z.string().min(1),
 });
 
 const parsed = envSchema.safeParse(process.env);

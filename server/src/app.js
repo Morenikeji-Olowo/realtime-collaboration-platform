@@ -6,6 +6,7 @@ import usersRoutes from './routes/users.routes.js';
 import workspaceRoutes from './routes/workspace.routes.js';
 import invitationRoutes from './routes/invitation.routes.js';
 import documentRoutes from './routes/document.routes.js';
+import fileRoutes from './routes/file.routes.js';
 import cors from 'cors';
 import { allowedOrigins } from './config/env.js';
 
@@ -27,6 +28,7 @@ app.use('/api/users', usersRoutes);
 app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/files', fileRoutes);
 
 app.use(errorHandler)
 
