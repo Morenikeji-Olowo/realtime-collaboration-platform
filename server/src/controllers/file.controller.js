@@ -29,3 +29,12 @@ export async function completeUpload(req, res, next) {
     next(err);
   }
 }
+
+export async function getDownloadUrl(req, res, next) {
+  try {
+    const result = await fileService.getDownloadUrl(req.params.fileId, req.user.id);
+    return res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}

@@ -6,6 +6,8 @@ import supabase from '../config/supabase.js';
 
 const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB
 const UPLOAD_URL_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+const DOWNLOAD_URL_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
+
 
 export async function getUploadUrl(workspaceId, userId, { filename, mimeType, sizeBytes }) {
   const membership = await getMembership(workspaceId, userId);
@@ -96,4 +98,39 @@ export async function completeUpload(fileId, userId, { workspaceId, originalName
   }
 
   return data;
+}
+
+export async function getDownloadUrl(fileId, userId) {
+  const { data: file, error } = await supabase
+    .from('workspace_files')
+    .select('id, workspace_id, storage_path, original_name')
+    .eq('id', fileId)
+    .single();
+
+  if (error) {
+    throw new AppError('File not found', 404);
+  }
+
+  const membership = await getMembership(file.workspace_id, userId);
+
+  if (!membership) {
+    throw new AppError('File not found', 404);
+  }
+
+  let downloadUrl;
+  try {
+    [downloadUrl] = await bucket.file(file.storage_path).getSignedUrl({
+      version: 'v4',
+      action: 'read',
+      expires: Date.now() + DOWNLOAD_URL_EXPIRY_MS,
+    });
+  } catch (err) {
+    throw new AppError('Failed to generate download URL', 500, { cause: err });
+  }
+
+  return {
+    downloadUrl,
+    originalName: file.original_name,
+    expiresAt: new Date(Date.now() + DOWNLOAD_URL_EXPIRY_MS).toISOString(),
+  };
 }
