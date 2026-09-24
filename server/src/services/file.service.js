@@ -134,3 +134,45 @@ export async function getDownloadUrl(fileId, userId) {
     expiresAt: new Date(Date.now() + DOWNLOAD_URL_EXPIRY_MS).toISOString(),
   };
 }
+
+export async function deleteFile(fileId, userId) {
+  const { data: file, error } = await supabase
+    .from('workspace_files')
+    .select('id, workspace_id, uploaded_by, storage_path')
+    .eq('id', fileId)
+    .single();
+
+  if (error) {
+    throw new AppError('File not found', 404);
+  }
+
+  const membership = await getMembership(file.workspace_id, userId);
+
+  if (!membership) {
+    throw new AppError('File not found', 404);
+  }
+
+  const isUploader = file.uploaded_by === userId;
+  const isOwner = membership.role === 'owner';
+
+  if (!isUploader && !isOwner) {
+    throw new AppError('Only the uploader or the workspace owner can delete this file', 403);
+  }
+
+  try {
+    await bucket.file(file.storage_path).delete();
+  } catch (err) {
+    if (err.code !== 404) {
+      throw new AppError('Failed to delete file from storage', 500, { cause: err });
+    }
+  }
+
+  const { error: deleteError } = await supabase
+    .from('workspace_files')
+    .delete()
+    .eq('id', fileId);
+
+  if (deleteError) {
+    throw new AppError('Failed to delete file record', 500, { cause: deleteError });
+  }
+}

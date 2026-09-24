@@ -38,3 +38,12 @@ export async function getDownloadUrl(req, res, next) {
     next(err);
   }
 }
+
+export async function deleteFile(req, res, next) {
+  try {
+    await fileService.deleteFile(req.params.fileId, req.user.id);
+    return res.status(200).json({ success: true, data: null });
+  } catch (err) {
+    next(err);
+  }
+}
